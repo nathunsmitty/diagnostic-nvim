@@ -13,6 +13,10 @@ command! LastDiagnostic lua require'jumpLoc'.jumpLastLocation()
 
 " lua require'diagnostic'.modifyCallback()
 
+if ! exists('g:diagnostic_enable_ale')
+    let g:diagnostic_enable_ale = 0
+endif
+
 if ! exists('g:diagnostic_enable_virtual_text')
     let g:diagnostic_enable_virtual_text = 0
 endif

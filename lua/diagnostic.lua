@@ -76,16 +76,20 @@ function M.publish_diagnostics(bufnr)
   if diagnostics == nil then return end
   util.align_diagnostic_indices(diagnostics)
   vim.fn.setloclist(0, {}, 'r')
-  if vim.api.nvim_get_var('diagnostic_enable_underline') == 1 then
-    vim.lsp.util.buf_diagnostics_underline(bufnr, diagnostics)
+  if vim.api.nvim_get_var('diagnostic_enable_ale') == 1 then
+    util.buf_diagnostics_ale(bufnr, diagnostics)
+  else
+    if vim.api.nvim_get_var('diagnostic_enable_underline') == 1 then
+      vim.lsp.util.buf_diagnostics_underline(bufnr, diagnostics)
+    end
+    if vim.api.nvim_get_var('diagnostic_show_sign') == 1 then
+      util.buf_diagnostics_signs(bufnr, diagnostics)
+    end
+    if vim.api.nvim_get_var('diagnostic_enable_virtual_text') == 1 then
+      util.buf_diagnostics_virtual_text(bufnr, diagnostics)
+    end
+    M.diagnostics_loclist(diagnostics)
   end
-  if vim.api.nvim_get_var('diagnostic_show_sign') == 1 then
-    util.buf_diagnostics_signs(bufnr, diagnostics)
-  end
-  if vim.api.nvim_get_var('diagnostic_enable_virtual_text') == 1 then
-    util.buf_diagnostics_virtual_text(bufnr, diagnostics)
-  end
-  M.diagnostics_loclist(diagnostics)
   M.trigger_diagnostics_changed()
 end
 

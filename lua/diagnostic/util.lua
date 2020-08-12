@@ -77,6 +77,7 @@ function M.buf_diagnostics_virtual_text(bufnr, diagnostics)
   if not buffer_line_diagnostics then
     return
   end
+  -- print(vim.fn.json_encode(buffer_line_diagnostics))
   for line, line_diagnostics in pairs(buffer_line_diagnostics) do
     local virt_texts = {}
     table.insert(virt_texts, {spaces})
@@ -99,6 +100,9 @@ function M.buf_diagnostics_virtual_text(bufnr, diagnostics)
     else
       table.insert(virt_texts, {prefix.." "..last.message:gsub("\r", ""):gsub("\n", "  "), severity_highlights[last.severity]})
     end
+
+    print("bufnr: " .. bufnr)
+    print(vim.fn.json_encode(virt_texts))
     api.nvim_buf_set_virtual_text(bufnr, diagnostic_ns, line, virt_texts, {})
   end
 end
@@ -184,6 +188,31 @@ function M.align_diagnostic_indices(diagnostics)
     if diagnostic.range.start.character < 0 then diagnostic.range.start.character = 0 end
     if diagnostic.range['end'].character < 0 then diagnostic.range['end'].character = 0 end
   end
+end
+
+function M.buf_diagnostics_ale(bufnr, diagnostics)
+  local ale_diagnostic_severity_map = {
+    [protocol.DiagnosticSeverity.Error] = "E";
+    [protocol.DiagnosticSeverity.Warning] = "W";
+    [protocol.DiagnosticSeverity.Information] = "I";
+    [protocol.DiagnosticSeverity.Hint] = "H";
+  }
+  M.buf_diagnostics_save_positions(bufnr, diagnostics)
+  print("diagnostics: " .. vim.fn.json_encode(diagnostics))
+  local items = {}
+  for _, item in ipairs(diagnostics) do
+    table.insert(items, {
+      nr = item.code,
+      text = item.message,
+      lnum = item.range.start.line+1,
+      end_lnum = item.range['end'].line,
+      col = item.range.start.character+1,
+      end_col = item.range['end'].character,
+      type = ale_diagnostic_severity_map[item.severity]
+    })
+  end
+
+  vim.api.nvim_call_function('ale#other_source#ShowResults', {bufnr, "nvim-lsp", items})
 end
 
 return M
