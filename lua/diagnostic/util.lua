@@ -77,7 +77,6 @@ function M.buf_diagnostics_virtual_text(bufnr, diagnostics)
   if not buffer_line_diagnostics then
     return
   end
-  -- print(vim.fn.json_encode(buffer_line_diagnostics))
   for line, line_diagnostics in pairs(buffer_line_diagnostics) do
     local virt_texts = {}
     table.insert(virt_texts, {spaces})
@@ -101,8 +100,6 @@ function M.buf_diagnostics_virtual_text(bufnr, diagnostics)
       table.insert(virt_texts, {prefix.." "..last.message:gsub("\r", ""):gsub("\n", "  "), severity_highlights[last.severity]})
     end
 
-    print("bufnr: " .. bufnr)
-    print(vim.fn.json_encode(virt_texts))
     api.nvim_buf_set_virtual_text(bufnr, diagnostic_ns, line, virt_texts, {})
   end
 end
@@ -198,7 +195,6 @@ function M.buf_diagnostics_ale(bufnr, diagnostics)
     [protocol.DiagnosticSeverity.Hint] = "H";
   }
   M.buf_diagnostics_save_positions(bufnr, diagnostics)
-  print("diagnostics: " .. vim.fn.json_encode(diagnostics))
   local items = {}
   for _, item in ipairs(diagnostics) do
     table.insert(items, {
